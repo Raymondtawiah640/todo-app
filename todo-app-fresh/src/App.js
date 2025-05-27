@@ -1,58 +1,111 @@
-import React, { useState } from 'react';
-import './App.css';
+import './App.css'
 
-function App() {
-  const [newTask, setNewTask] = useState('');
-  const [tasks, setTasks] = useState([]);
+function ProductCategoryRow({ category }) {
+  return (
+    <tr>
+      <th colSpan="20px" style={{ backgroundColor: '#eee' }}>
+        <span style={{ fontWeight: 'bold' }}>
+          {category}
+        </span>
+      </th>
+    </tr>
+  );
+}
 
-  const addTask = () => {
-    if (newTask.trim()) {
-      setTasks([...tasks, { text: newTask.trim(), completed: false }]);
-      setNewTask('');
-    }
-  };
-
-  const toggleComplete = (index) => {
-    const updatedTasks = [...tasks];
-    updatedTasks[index].completed = !updatedTasks[index].completed;
-    setTasks(updatedTasks);
-  };
-
-  const deleteTask = (index) => {
-    const updatedTasks = tasks.filter((_, i) => i !== index);
-    setTasks(updatedTasks);
-  };
+function ProductRow({ product }) {
+  const name = product.stocked ? product.name :
+    <span style={{ color: 'red' }}>
+      {product.name}
+    </span>;
 
   return (
-    <div className="container">
-      <h2>React To-Do App</h2>
-      <input
-        type="text"
-        value={newTask}
-        onChange={(e) => setNewTask(e.target.value)}
-        placeholder="Enter task"
-      />
-      <button onClick={addTask}>Add</button>
+    <tr>
+      <td>{name}</td>
+      <td>{product.price}</td>
+    </tr>
+  );
+}
 
-      <ul>
-        {tasks.map((task, index) => (
-          <li key={index}>
-            <span
-              style={{
-                textDecoration: task.completed ? 'line-through' : 'none'
-              }}
-            >
-              {task.text}
-            </span>
-            <button onClick={() => toggleComplete(index)}>
-              {task.completed ? 'Undo' : 'Done'}
-            </button>
-            <button onClick={() => deleteTask(index)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+function ProductTable({ products }) {
+  const rows = [];
+  let lastCategory = null;
+
+  products.forEach((product) => {
+    if (product.category !== lastCategory) {
+      rows.push(
+        <ProductCategoryRow
+          category={product.category}
+          key={product.category} />
+      );
+    }
+    rows.push(
+      <ProductRow
+        product={product}
+        key={product.name} />
+    );
+    lastCategory = product.category;
+  });
+
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>{rows}</tbody>
+    </table>
+  );
+}
+
+function SearchBar() {
+  return (
+    <form>
+      <input type="text" placeholder="Search..." />
+      <label>
+        <input type="checkbox" />
+        {' '}
+        Only show products in stock
+      </label>
+    </form>
+  );
+}
+
+function FilterableProductTable({ products }) {
+  return (
+    <div>
+      <SearchBar />
+      <ProductTable products={products} />
     </div>
   );
 }
 
-export default App;
+const PRODUCTS = [
+  {category: "Fruits", price: "$1", stocked: true, name: "Apple"},
+  {category: "Fruits", price: "$1", stocked: true, name: "Dragonfruit"},
+  {category: "Fruits", price: "$2", stocked: false, name: "Passionfruit"},
+  {category: "Vegetables", price: "$2", stocked: true, name: "Spinach"},
+  {category: "Vegetables", price: "$4", stocked: false, name: "Pumpkin"},
+  {category: "Vegetables", price: "$1", stocked: true, name: "Peas"}
+];
+
+
+
+const info =[{message: 'I am a software engineer'}, {msg: 'I have learnt how to use React'}, {name: 'Raymond Kwame Tawiah'}]
+
+function Information({ info }) {
+    return(
+      <p>{info[0].message + ' ' + info[1].msg + ' ' + info[2].name}</p>
+    );
+  }
+
+export default function App() {
+  return (
+    <div>
+      <Information info={info} />
+      <FilterableProductTable products={PRODUCTS} />
+    </div>
+  );
+
+}
